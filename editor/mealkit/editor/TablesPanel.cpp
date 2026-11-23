@@ -457,7 +457,7 @@ void TablesPanel::drawDoc(Doc& doc, void* owner, bool editing) {
     ImGui::InputFloat("##scalePercent", &m_scalePercent, 0.0f, 0.0f, "%.4g%%");
     m_scalePercent = std::clamp(m_scalePercent, -100.0f, 10000.0f);
     if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-        ImGui::SetTooltip("%s", tr("Percent to change the selected number cells by: +10 is 10% more, -20 is 20% less"));
+        ImGui::SetTooltip("%s", tr("Percent to change the selected number cells by: +10 is ten percent more, -20 is twenty percent less"));
     ImGui::SameLine();
     ImGui::BeginDisabled(doc.anchorRow < 0);
     if (ImGui::Button(tr("Scale Selected"))) m_scaleRequested = true;
