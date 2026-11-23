@@ -317,12 +317,16 @@ bool fieldRange(const reflect::FieldInfo& field, double& min, double& max) {
     const char* at = field.label ? std::strstr(field.label, "|range=") : nullptr;
     if (!at) return false;
     at += 7;
+    // "0..10": strtod would take "0." of "0..10" as the number, so split at ".." first
+    const char* dots = std::strstr(at, "..");
+    if (!dots || dots == at) return false;
+    const std::string first(at, dots);
     char* end = nullptr;
-    const double lo = std::strtod(at, &end);
-    if (!end || end[0] != '.' || end[1] != '.') return false;
+    const double lo = std::strtod(first.c_str(), &end);
+    if (!end || *end) return false;
     char* end2 = nullptr;
-    const double hi = std::strtod(end + 2, &end2);
-    if (end2 == end + 2 || !(hi > lo)) return false;
+    const double hi = std::strtod(dots + 2, &end2);
+    if (end2 == dots + 2 || !(hi > lo)) return false;
     min = lo;
     max = hi;
     return true;
