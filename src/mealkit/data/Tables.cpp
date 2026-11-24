@@ -306,7 +306,7 @@ void tableFromText(const reflect::TypeInfo& rowType, const TableText& text, Tabl
         std::string unknown;
         reflect::fromText(rowType, out.rows.back().data(), text.rows[i], &unknown);
         if (!unknown.empty() && warnings)
-            *warnings += (warnings->empty() ? "" : "; ") + std::string("row ") + text.ids[i] + ": unknown fields " + unknown;
+            *warnings += (warnings->empty() ? "" : "; ") + std::string("row ") + text.ids[i] + ": " + unknown;
         if (warnings) {
             const std::string range = rowRangeWarnings(rowType, out.rows.back().data(), text.ids[i]);
             if (!range.empty()) *warnings += (warnings->empty() ? "" : "; ") + range;

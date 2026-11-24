@@ -37,7 +37,7 @@ struct TableData {
     std::vector<reflect::Instance> rows;
 };
 void tableToText(const TableData& table, TableText& out);
-// Reads each line with the row type. Unknown fields go to warnings.
+// Reads each line with the row type. Unknown fields and bad values go to warnings as "row <id>: unknown field 'speeed'; did you mean 'speed'?".
 void tableFromText(const reflect::TypeInfo& rowType, const TableText& text, TableData& out,
                    std::string* warnings = nullptr);
 bool loadTableData(const reflect::TypeInfo& rowType, const std::string& path, TableData& out,
@@ -140,7 +140,9 @@ bool loadTable(sim::Table<Row>& out, const char* assetPath = nullptr) {
     out.ids = std::move(text.ids);
     out.rows.resize(out.ids.size());
     for (size_t i = 0; i < out.rows.size(); ++i) {
-        reflect::fromText(reflect::typeOf<Row>(), &out.rows[i], text.rows[i], &warnings);
+        std::string unknown;
+        reflect::fromText(reflect::typeOf<Row>(), &out.rows[i], text.rows[i], &unknown);
+        if (!unknown.empty()) warnings += (warnings.empty() ? "" : "; ") + std::string("row ") + out.ids[i] + ": " + unknown;
         const std::string range = rowRangeWarnings(reflect::typeOf<Row>(), &out.rows[i], out.ids[i]);
         if (!range.empty()) warnings += (warnings.empty() ? "" : "; ") + range;
     }
