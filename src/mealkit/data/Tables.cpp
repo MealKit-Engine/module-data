@@ -227,6 +227,11 @@ bool validRowId(const std::string& id) {
 
 std::string findTableFile(const char* assetPath) { return findAssetFile(assetPath); }
 
+std::string rowLabel(const std::string& id, const std::vector<int>& lines, size_t index) {
+    if (index >= lines.size() || lines[index] <= 0) return id;
+    return id + " (line " + std::to_string(lines[index]) + ")";
+}
+
 bool readTableText(const std::string& path, TableText& out, std::string* warnings) {
     out = {};
     std::string text;
@@ -262,6 +267,7 @@ bool readTableText(const std::string& path, TableText& out, std::string* warning
             }
             out.ids.push_back(value);
             out.rows.emplace_back();
+            out.lines.push_back(lineNo);
             continue;
         }
         if (skipping) continue;
@@ -305,10 +311,11 @@ void tableFromText(const reflect::TypeInfo& rowType, const TableText& text, Tabl
         out.rows.emplace_back(rowType);
         std::string unknown;
         reflect::fromText(rowType, out.rows.back().data(), text.rows[i], &unknown);
+        const std::string label = rowLabel(text.ids[i], text.lines, i);
         if (!unknown.empty() && warnings)
-            *warnings += (warnings->empty() ? "" : "; ") + std::string("row ") + text.ids[i] + ": " + unknown;
+            *warnings += (warnings->empty() ? "" : "; ") + std::string("row ") + label + ": " + unknown;
         if (warnings) {
-            const std::string range = rowRangeWarnings(rowType, out.rows.back().data(), text.ids[i]);
+            const std::string range = rowRangeWarnings(rowType, out.rows.back().data(), label);
             if (!range.empty()) *warnings += (warnings->empty() ? "" : "; ") + range;
         }
     }
